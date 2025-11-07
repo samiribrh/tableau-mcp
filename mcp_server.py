@@ -32,7 +32,7 @@ def get_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="check_dataset",
-            description="Check if a dataset exists in Tableau Server",
+            description="Check if a dataset exists in Tableau Server.",
             inputSchema={
                 "type": "object",
                 "properties": {

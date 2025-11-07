@@ -5,7 +5,7 @@ import pandas as pd
 import pantab
 import tableauserverclient as TSC
 
-from config import TABLEAU_SERVER, TABLEAU_SITE_ID, TABLEAU_PAT_NAME, TABLEAU_PAT_SECRET, TABLEAU_PROJECT_NAME
+from config import TABLEAU_SERVER, TABLEAU_SITE_ID, TABLEAU_PAT_NAME, TABLEAU_PAT_SECRET, TABLEAU_PROJECT_NAME, DEFAULT_FILE_DIRECTORY
 
 
 def connect_tableau():
@@ -28,6 +28,17 @@ def connect_tableau():
         raise
 
 
+def _resolve_file_path(file_path):
+    path = Path(file_path)
+    
+    if path.is_absolute():
+        return str(path)
+    
+    resolved_path = Path(DEFAULT_FILE_DIRECTORY) / file_path
+    logging.info(f"Resolved relative path '{file_path}' to '{resolved_path}'")
+    return str(resolved_path)
+
+
 def get_project_id(server, project_name=TABLEAU_PROJECT_NAME):
     try:
         all_projects, _ = server.projects.get()
@@ -43,6 +54,8 @@ def get_project_id(server, project_name=TABLEAU_PROJECT_NAME):
 
 def upload_dataset(server, file_path, project_name=TABLEAU_PROJECT_NAME):
     try:
+        file_path = _resolve_file_path(file_path)
+
         logging.info(f"Starting upload for dataset: {file_path}")
 
         project_id = get_project_id(server, project_name)
@@ -111,6 +124,9 @@ def convert_excel_to_hyper(excel_file_path, hyper_file_path=None):
         if not hyper_file_path:
             excel_path = Path(excel_file_path)
             hyper_file_path = str(excel_path.parent / f"{excel_path.stem}.hyper")
+
+        else:
+            hyper_file_path = _resolve_file_path(hyper_file_path)
         
         logging.info(f"Reading Excel file: {excel_file_path}")
         df = pd.read_excel(excel_file_path)
@@ -134,6 +150,7 @@ def convert_excel_to_hyper(excel_file_path, hyper_file_path=None):
 
 
 def _find_excel_file(file_path):
+    file_path = _resolve_file_path(file_path)
     path = Path(file_path)
     
     if path.suffix and path.exists():

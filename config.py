@@ -15,3 +15,6 @@ TABLEAU_SITE_ID = os.getenv('TABLEAU_SITE_ID', '')
 TABLEAU_PAT_NAME = os.getenv('TABLEAU_PAT_NAME')
 TABLEAU_PAT_SECRET = os.getenv('TABLEAU_PAT_SECRET')
 TABLEAU_PROJECT_NAME = os.getenv('TABLEAU_PROJECT_NAME', 'Sales')
+
+# Default file directory
+DEFAULT_FILE_DIRECTORY = os.getenv('DEFAULT_FILE_DIRECTORY', r'C:\Users\User\Downloads')
