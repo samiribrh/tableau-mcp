@@ -12,6 +12,11 @@ tableau = "^0.0.3"
 tableau-api-lib = "^0.1.50"
 tableauserverclient = "^0.38"
 mcp-server = "^0.1.4"
+mcp = "^1.21.0"
+pantab = "^5.2.2"
+pandas = "^2.3.3"
+python-dotenv = "^1.2.1"
+openpyxl = "^3.1.5"
 
 
 [build-system]

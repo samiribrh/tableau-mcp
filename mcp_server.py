@@ -93,7 +93,7 @@ def handle_tool_call(name: str, arguments: dict) -> list[TextContent]:
                 "result": result
             }, indent=2)
         )]
-    
+
     except Exception as e:
         logging.error(f"Error executing tool {name}: {e}")
         return [TextContent(
