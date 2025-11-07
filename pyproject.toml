@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "tableau-mcp"
+version = "0.1.0"
+description = ""
+authors = ["samiribrh <samiribrahimov2277@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+flask = "^3.1.2"
+tableau = "^0.0.3"
+tableau-api-lib = "^0.1.50"
+tableauserverclient = "^0.38"
+mcp-server = "^0.1.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
