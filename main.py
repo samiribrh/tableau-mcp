@@ -1,41 +1,79 @@
-import asyncio
-import logging
+"""
+Tableau AI Assistant - Main Application
+FastAPI server with Ollama integration for AI-powered Tableau operations.
+"""
+import uvicorn
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from pathlib import Path
 
-from mcp.server import Server
-from mcp.server.stdio import stdio_server
+from src.config import setup_logging, settings, get_logger
+from src.api import router
 
-from mcp_server import get_tool_definitions, handle_tool_call
+# Setup logging
+setup_logging()
+logger = get_logger(__name__)
 
-logging.basicConfig(level=logging.INFO)
+# Create FastAPI app
+app = FastAPI(
+    title="Tableau AI Assistant",
+    description="AI-powered assistant for Tableau Server operations using local LLM",
+    version="1.0.0"
+)
 
-# Create MCP server instance
-app = Server("tableau-mcp")
+# Mount static files (for HTML/CSS/JS)
+static_dir = Path(__file__).parent / "static"
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+else:
+    logger.warning(f"Static directory not found: {static_dir}")
+
+# Include API routes
+app.include_router(router)
 
 
-@app.list_tools()
-async def list_tools():
-    """List available Tableau tools"""
-    return get_tool_definitions()
-
-
-@app.call_tool()
-async def call_tool(name: str, arguments: dict):
-    """Handle tool calls"""
-    return handle_tool_call(name, arguments)
-
-
-async def main():
-    """Main entry point for the MCP server"""
-    logging.info("Starting Tableau MCP Server...")
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    """Serve the chat interface."""
+    index_path = static_dir / "index.html"
     
-    async with stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options()
+    if not index_path.exists():
+        return HTMLResponse(
+            content="<h1>Tableau AI Assistant</h1><p>index.html not found</p>",
+            status_code=404
         )
+    
+    with open(index_path, "r") as f:
+        return HTMLResponse(content=f.read())
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Run on application startup."""
+    logger.info("="*60)
+    logger.info("🚀 Tableau AI Assistant Starting...")
+    logger.info("="*60)
+    logger.info(f"Server: {settings.server_host}:{settings.server_port}")
+    logger.info(f"Tableau Server: {settings.tableau_server}")
+    logger.info(f"Ollama Model: {settings.ollama_model}")
+    logger.info(f"Default Project: {settings.tableau_project_name}")
+    logger.info("="*60)
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Run on application shutdown."""
+    logger.info("Tableau AI Assistant shutting down...")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logger.info("Starting Tableau AI Assistant server...")
     
+    uvicorn.run(
+        "main:app",
+        host=settings.server_host,
+        port=settings.server_port,
+        reload=True,  # Auto-reload on code changes
+        log_level=settings.log_level.lower()
+    )
