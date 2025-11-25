@@ -86,7 +86,8 @@ def upload_dataset(
     Raises:
         Exception: If project not found or upload fails
     """
-    project_name = project_name or settings.tableau_project_name
+    if not project_name:
+        raise ValueError("Project name is required")
     
     try:
         # Resolve file path

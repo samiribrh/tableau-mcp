@@ -17,30 +17,31 @@ def get_tool_definitions() -> List[Tool]:
             description=(
                 "Upload a dataset file to Tableau Server. "
                 "Accepts Excel (.xlsx, .xls), CSV (.csv), or Hyper (.hyper) files. "
-                "Excel and CSV files are automatically converted to Hyper format before upload. "
-                "IMPORTANT: Use ONLY the filename, not a full path. "
-                "Examples: 'sales.xlsx' or 'data.csv' or 'revenue' (extension optional)"
+                "\n\n"
+                "⚠️ CRITICAL WORKFLOW:"
+                "\n1. Check if user mentioned a Tableau project name"
+                "\n2. If YES → call this tool with both file_path and tableau_project"
+                "\n3. If NO → DO NOT call this tool yet! Instead, respond to user:"
+                '\n   "Which Tableau project would you like to upload to?"'
+                "\n4. Wait for user's reply with project name"
+                "\n5. Then call this tool with the project name they provided"
+                "\n\n"
+                "DO NOT use placeholder values like 'default' or empty strings. "
+                "DO NOT call this tool without an actual project name from the user."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "file_path": {
                         "type": "string",
-                        "description": (
-                            "FILENAME ONLY (not full path). Examples: 'data.csv', 'sales.xlsx', 'revenue'. "
-                            "Files are searched in the configured default directory. "
-                            "Extension is optional - system will search for matching files."
-                        )
+                        "description": "Filename only (e.g., 'sales.xlsx', 'data.csv')"
                     },
                     "tableau_project": {
                         "type": "string",
-                        "description": (
-                            "Tableau project name where the dataset will be uploaded. "
-                            "Optional - defaults to configured project."
-                        )
+                        "description": "Exact Tableau project name provided by the user (e.g., 'Sales', 'Marketing'). Never use placeholders."
                     }
                 },
-                "required": ["file_path"]
+                "required": ["file_path", "tableau_project"]
             }
         ),
         

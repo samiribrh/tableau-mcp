@@ -70,20 +70,24 @@ def handle_tool_call(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
 
 
 def _handle_upload_dataset(arguments: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Handle upload_dataset tool with automatic format conversion.
-    
-    Automatically converts Excel/CSV files to Hyper format before upload.
-    """
+    """Handle upload_dataset tool with automatic format conversion."""
     file_path = arguments.get("file_path")
     tableau_project = arguments.get("tableau_project")
     
     if not file_path:
         raise ValueError("Missing required parameter: file_path")
     
+    # Check for missing or placeholder project names
+    if not tableau_project or tableau_project.strip() == "":
+        raise ValueError("tableau_project cannot be empty. Ask the user which project to upload to.")
+    
+    # Check for obvious placeholders
+    placeholder_keywords = ["ask", "user", "default", "placeholder", "specify"]
+    if any(keyword in tableau_project.lower() for keyword in placeholder_keywords):
+        raise ValueError(f"Invalid project name: '{tableau_project}'. Ask the user for the actual project name.")
+    
     from src.config import settings
     
-    # Parse the file path
     path = Path(file_path)
     
     # If it's an absolute path but doesn't exist, extract just the filename
